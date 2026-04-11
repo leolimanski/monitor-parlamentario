@@ -25,18 +25,13 @@
     /* ── Header ── */
     header {
       background: linear-gradient(135deg, var(--azul) 0%, var(--azul-med) 100%);
-      color: #fff;
-      padding: 20px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      color: #fff; padding: 20px 32px;
+      display: flex; align-items: center; justify-content: space-between;
       box-shadow: 0 2px 12px rgba(0,0,0,.25);
     }
     header .brand { display: flex; align-items: center; gap: 14px; }
     header .brand .escudo {
-      width: 48px; height: 48px;
-      background: var(--acento);
-      border-radius: 50%;
+      width: 48px; height: 48px; background: var(--acento); border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 22px; font-weight: 900; color: var(--azul);
     }
@@ -45,92 +40,84 @@
     #ultima-actualizacion { font-size: .78rem; opacity: .7; text-align: right; }
 
     /* ── Layout ── */
-    main { max-width: 1280px; margin: 0 auto; padding: 28px 24px 48px; }
+    main { max-width: 1400px; margin: 0 auto; padding: 28px 24px 48px; }
     section { margin-bottom: 32px; }
-    h2 { font-size: 1rem; font-weight: 600; color: var(--gris); text-transform: uppercase;
-         letter-spacing: .6px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    h2::before { content: ''; display: inline-block; width: 4px; height: 18px;
-                 background: var(--acento); border-radius: 2px; }
+    h2 {
+      font-size: 1rem; font-weight: 600; color: var(--gris);
+      text-transform: uppercase; letter-spacing: .6px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    h2::before {
+      content: ''; display: inline-block; width: 4px; height: 18px;
+      background: var(--acento); border-radius: 2px;
+    }
 
     /* ── Scorecards ── */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
     .stat-card {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 22px 20px;
+      background: var(--card); border-radius: 12px; padding: 22px 20px;
       border-left: 5px solid var(--azul-med);
-      box-shadow: 0 2px 8px rgba(0,0,0,.07);
-      transition: transform .15s;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07); transition: transform .15s;
     }
     .stat-card:hover { transform: translateY(-2px); }
-    .stat-card.verde  { border-color: var(--verde); }
-    .stat-card.naranja{ border-color: var(--naranja); }
-    .stat-card.rojo   { border-color: var(--rojo); }
+    .stat-card.naranja { border-color: var(--naranja); }
+    .stat-card.acento  { border-color: var(--acento); }
     .stat-label { font-size: .78rem; color: var(--gris); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
     .stat-value { font-size: 2.6rem; font-weight: 800; color: var(--azul); line-height: 1.1; margin: 6px 0 4px; }
-    .stat-card.verde  .stat-value { color: #1a9e52; }
     .stat-card.naranja .stat-value { color: #b35c00; }
-    .stat-card.rojo   .stat-value { color: #c0392b; }
-    .stat-sub { font-size: .78rem; color: var(--gris); }
+    .stat-sub { font-size: .75rem; color: var(--gris); }
+    .comisiones-lista {
+      margin-top: 8px; font-size: .69rem; color: var(--gris);
+      line-height: 1.7; max-height: 68px; overflow-y: auto;
+    }
 
     /* ── Filtros ── */
     .filtros-bar {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 16px 20px;
-      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+      background: var(--card); border-radius: 12px; padding: 16px 20px;
+      display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end;
       box-shadow: 0 2px 8px rgba(0,0,0,.06);
     }
-    .filtros-bar label { font-size: .8rem; font-weight: 600; color: var(--gris); }
+    .filtro-grupo { display: flex; flex-direction: column; gap: 4px; }
+    .filtros-bar label { font-size: .78rem; font-weight: 600; color: var(--gris); }
     .filtros-bar select, .filtros-bar input {
-      padding: 8px 12px;
-      border: 1.5px solid var(--borde);
-      border-radius: 8px;
-      font-size: .88rem;
-      color: var(--texto);
-      background: #fff;
-      outline: none;
-      transition: border-color .2s;
+      padding: 8px 12px; border: 1.5px solid var(--borde); border-radius: 8px;
+      font-size: .88rem; color: var(--texto); background: #fff;
+      outline: none; transition: border-color .2s;
     }
     .filtros-bar select:focus, .filtros-bar input:focus { border-color: var(--azul-med); }
-    .filtros-bar input { min-width: 220px; }
-    .filtros-bar .btn-reset {
-      margin-left: auto;
-      padding: 8px 16px;
-      background: var(--azul);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: .85rem;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background .2s;
+    .filtros-bar input[type="search"] { min-width: 210px; }
+    .btn-reset {
+      padding: 8px 16px; background: var(--azul); color: #fff; border: none;
+      border-radius: 8px; font-size: .85rem; cursor: pointer; font-weight: 600;
+      transition: background .2s; align-self: flex-end;
     }
-    .filtros-bar .btn-reset:hover { background: var(--azul-med); }
+    .btn-reset:hover { background: var(--azul-med); }
 
-    /* ── Charts grid ── */
+    /* ── Charts ── */
     .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
     .chart-card {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 22px;
+      background: var(--card); border-radius: 12px; padding: 22px;
       box-shadow: 0 2px 8px rgba(0,0,0,.07);
     }
-    .chart-card h3 { font-size: .88rem; font-weight: 700; color: var(--azul); margin-bottom: 16px;
-                     display: flex; align-items: center; gap: 6px; }
-    .chart-wrap { position: relative; height: 280px; }
+    .chart-card h3 {
+      font-size: .88rem; font-weight: 700; color: var(--azul);
+      margin-bottom: 16px; display: flex; align-items: center; gap: 6px;
+    }
+    .chart-wrap { position: relative; height: 300px; }
 
     /* ── Tabla ── */
     .tabla-wrap {
-      background: var(--card);
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.07);
-      overflow: hidden;
+      background: var(--card); border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07); overflow: hidden;
     }
     .tabla-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--borde);
+      padding: 16px 20px; border-bottom: 1px solid var(--borde);
       display: flex; align-items: center; justify-content: space-between;
       flex-wrap: wrap; gap: 10px;
     }
@@ -139,17 +126,10 @@
     .tabla-scroll { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: .84rem; }
     thead th {
-      background: var(--azul);
-      color: #fff;
-      padding: 11px 14px;
-      text-align: left;
-      font-weight: 600;
-      font-size: .78rem;
-      text-transform: uppercase;
-      letter-spacing: .4px;
-      white-space: nowrap;
-      cursor: pointer;
-      user-select: none;
+      background: var(--azul); color: #fff; padding: 11px 14px;
+      text-align: left; font-weight: 600; font-size: .78rem;
+      text-transform: uppercase; letter-spacing: .4px;
+      white-space: nowrap; cursor: pointer; user-select: none;
     }
     thead th:hover { background: var(--azul-med); }
     thead th.sorted-asc::after  { content: ' ▲'; font-size: .7rem; }
@@ -158,56 +138,38 @@
     tbody tr:hover { background: #f0f4fa; }
     tbody td { padding: 10px 14px; vertical-align: middle; }
     tbody td.nro { font-weight: 700; color: var(--azul); white-space: nowrap; }
-    tbody td.sumario { max-width: 320px; }
+    tbody td.sumario { min-width: 280px; max-width: 540px; }
+    a.nro-link {
+      color: var(--azul-med); text-decoration: none; font-weight: 700;
+    }
+    a.nro-link:hover { text-decoration: underline; color: var(--acento); }
     .badge {
-      display: inline-block;
-      padding: 3px 9px;
-      border-radius: 20px;
-      font-size: .73rem;
-      font-weight: 700;
-      letter-spacing: .3px;
-      white-space: nowrap;
+      display: inline-block; padding: 3px 9px; border-radius: 20px;
+      font-size: .73rem; font-weight: 700; letter-spacing: .3px; white-space: nowrap;
     }
-    .badge-ley       { background: #d6eaf8; color: #1a5276; }
-    .badge-resolucion{ background: #d5f5e3; color: #1e8449; }
-    .badge-declaracion{ background: #fdebd0; color: #935116; }
-    .badge-otro      { background: #f0f0f0; color: #555; }
-    .badge-estado-comision { background: #eaf4fb; color: #1a6a9a; }
+    .badge-ley          { background: #d6eaf8; color: #1a5276; }
+    .badge-resolucion   { background: #d5f5e3; color: #1e8449; }
+    .badge-declaracion  { background: #fdebd0; color: #935116; }
+    .badge-otro         { background: #f0f0f0; color: #555; }
+    .badge-estado-comision   { background: #eaf4fb; color: #1a6a9a; }
     .badge-estado-sancionado { background: #eafaf1; color: #1e8449; }
-    .badge-estado-otro { background: #f9f9f9; color: #777; }
-    a.doc-link {
-      color: var(--azul-med);
-      font-weight: 600;
-      text-decoration: none;
-      font-size: .78rem;
-    }
-    a.doc-link:hover { text-decoration: underline; }
+    .badge-estado-otro       { background: #f9f9f9; color: #777; }
     .paginacion {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 20px;
-      border-top: 1px solid var(--borde);
+      padding: 12px 20px; border-top: 1px solid var(--borde);
       flex-wrap: wrap; gap: 8px;
     }
     .paginacion button {
-      padding: 6px 14px;
-      border: 1.5px solid var(--borde);
-      background: #fff;
-      border-radius: 7px;
-      cursor: pointer;
-      font-size: .82rem;
-      font-weight: 600;
-      color: var(--azul);
-      transition: all .15s;
+      padding: 6px 14px; border: 1.5px solid var(--borde); background: #fff;
+      border-radius: 7px; cursor: pointer; font-size: .82rem; font-weight: 600;
+      color: var(--azul); transition: all .15s;
     }
     .paginacion button:hover:not(:disabled) { background: var(--azul); color: #fff; border-color: var(--azul); }
     .paginacion button:disabled { opacity: .35; cursor: not-allowed; }
     #page-info { font-size: .82rem; color: var(--gris); }
 
     /* ── Loading / Error ── */
-    .loader {
-      text-align: center; padding: 60px;
-      color: var(--gris); font-size: 1rem;
-    }
+    .loader { text-align: center; padding: 60px; color: var(--gris); font-size: 1rem; }
     .loader::before { content: '⟳ '; animation: spin 1s linear infinite; display: inline-block; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .error-msg { color: var(--rojo); background: #fdf0ee; border-radius: 8px; padding: 16px 20px; font-size: .9rem; }
@@ -228,7 +190,6 @@
 
 <main>
 
-  <!-- Cargando -->
   <div id="loading" class="loader">Cargando datos desde la planilla…</div>
   <div id="error-msg" class="error-msg" style="display:none"></div>
 
@@ -238,26 +199,25 @@
     <section>
       <h2>Resumen General</h2>
       <div class="stats-grid">
+
         <div class="stat-card">
           <div class="stat-label">Total Proyectos</div>
           <div class="stat-value" id="stat-total">—</div>
-          <div class="stat-sub">en la base de datos</div>
+          <div class="stat-sub">en las comisiones</div>
         </div>
+
         <div class="stat-card naranja">
-          <div class="stat-label">En Comisión</div>
-          <div class="stat-value" id="stat-comision">—</div>
-          <div class="stat-sub">con trámite activo</div>
+          <div class="stat-label">Ingresados — últimos 30 días</div>
+          <div class="stat-value" id="stat-recientes">—</div>
+          <div class="stat-sub">nuevos proyectos</div>
         </div>
-        <div class="stat-card verde">
-          <div class="stat-label">Sancionados</div>
-          <div class="stat-value" id="stat-sancionados">—</div>
-          <div class="stat-sub">aprobados</div>
-        </div>
-        <div class="stat-card rojo">
+
+        <div class="stat-card acento">
           <div class="stat-label">Comisiones</div>
           <div class="stat-value" id="stat-comisiones">—</div>
-          <div class="stat-sub">con proyectos activos</div>
+          <div class="comisiones-lista" id="stat-comisiones-nombres"></div>
         </div>
+
       </div>
     </section>
 
@@ -265,20 +225,22 @@
     <section>
       <h2>Filtros</h2>
       <div class="filtros-bar">
-        <div>
-          <label>Comisión&nbsp;</label>
+        <div class="filtro-grupo">
+          <label for="filtro-ubicacion">Comisión</label>
           <select id="filtro-ubicacion"><option value="">Todas</option></select>
         </div>
-        <div>
-          <label>Tipo&nbsp;</label>
+        <div class="filtro-grupo">
+          <label for="filtro-tipo">Tipo</label>
           <select id="filtro-tipo"><option value="">Todos</option></select>
         </div>
-        <div>
-          <label>Estado&nbsp;</label>
-          <select id="filtro-estado"><option value="">Todos</option></select>
+        <div class="filtro-grupo">
+          <label for="filtro-sumario">Sumario</label>
+          <input type="search" id="filtro-sumario" placeholder="🔍 Buscar en sumario…" />
         </div>
-        <div>
-          <input type="search" id="filtro-texto" placeholder="🔍  Buscar en sumario, autor, Nro…" />
+        <div class="filtro-grupo">
+          <label for="filtro-autor">Autor</label>
+          <input type="search" id="filtro-autor" placeholder="🔍 Buscar autor…" list="lista-autores" autocomplete="off" />
+          <datalist id="lista-autores"></datalist>
         </div>
         <button class="btn-reset" onclick="resetFiltros()">Limpiar filtros</button>
       </div>
@@ -310,14 +272,14 @@
           <table id="tabla">
             <thead>
               <tr>
-                <th onclick="sortBy('Nro')">Nro</th>
-                <th onclick="sortBy('Sumario')">Sumario</th>
-                <th onclick="sortBy('Autor')">Autor</th>
-                <th onclick="sortBy('Tipo')">Tipo</th>
-                <th onclick="sortBy('Estado')">Estado</th>
-                <th onclick="sortBy('Último Mov')">Último Mov.</th>
-                <th onclick="sortBy('Ubicación')">Comisión</th>
-                <th>Doc.</th>
+                <th data-col="Nro"       onclick="sortBy('Nro')">Nro</th>
+                <th data-col="Inicio"    onclick="sortBy('Inicio')">Inicio</th>
+                <th data-col="Autor"     onclick="sortBy('Autor')">Autor</th>
+                <th data-col="Sumario"   onclick="sortBy('Sumario')">Sumario</th>
+                <th data-col="Tipo"      onclick="sortBy('Tipo')">Tipo</th>
+                <th data-col="Estado"    onclick="sortBy('Estado')">Estado</th>
+                <th data-col="UltimoMov" onclick="sortBy('UltimoMov')">Último Mov.</th>
+                <th data-col="Ubicacion" onclick="sortBy('Ubicacion')">Comisión</th>
               </tr>
             </thead>
             <tbody id="tabla-body"></tbody>
@@ -335,19 +297,46 @@
 </main>
 
 <script>
-// ── Configuración ──────────────────────────────────────────────────────────
+// ── Config ────────────────────────────────────────────────────────────────
 const CSV_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRev6wK6QFKLhZmqsxjyVnejhIxWHHE-KptyPBj0kZ0YY6lRaebjUNL-MjcOujCq_5YfqcJuSM2Tjvg/pub?gid=1935086705&single=true&output=csv';
 const ROWS_PAGE = 20;
 
-// ── Estado global ──────────────────────────────────────────────────────────
+// ── Estado global ─────────────────────────────────────────────────────────
 let allData      = [];
 let filteredData = [];
 let currentPage  = 1;
-let sortCol      = 'Nro';
-let sortDir      = 'asc';
-let chartComision, chartTipo;
+let sortCol      = 'Inicio';   // default: más nuevos primero
+let sortDir      = 'desc';
 
-// ── Carga de datos ─────────────────────────────────────────────────────────
+// ── Normalización de headers ──────────────────────────────────────────────
+// Convierte cualquier nombre de columna a una clave normalizada (sin tildes,
+// minúsculas, caracteres especiales → '_'), para tolerar variaciones en el CSV.
+function normKey(k) {
+  return k.trim()
+    .replace(/\uFEFF/g, '')           // strip BOM
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')  // quitar diacríticos
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '_');      // no-alfanumérico → _
+}
+
+// Mapa: clave normalizada → nombre interno uniforme
+const FIELD_MAP = {
+  'nro':               'Nro',
+  'inicio':            'Inicio',
+  'autor':             'Autor',
+  'coautor_es':        'CoAutor',
+  'sumario':           'Sumario',
+  'tipo':              'Tipo',
+  'ultimo_mov':        'UltimoMov',
+  'estado':            'Estado',
+  'sancionado_':       'Sancionado',
+  'ubicacion':         'Ubicacion',
+  'url_documento':     'UrlDoc',
+  '_fecha_extraccion': 'FechaExtraccion',
+};
+
+// ── Carga de datos ────────────────────────────────────────────────────────
 async function cargarDatos() {
   try {
     const res = await fetch(CSV_URL);
@@ -367,13 +356,26 @@ async function cargarDatos() {
 
 function parsearCSV(csv) {
   const lines = csv.split('\n').filter(l => l.trim());
-  const headers = splitCSVLine(lines[0]);
+  if (lines.length < 2) return [];
+
+  const rawHeaders = splitCSVLine(lines[0]);
+
+  // Construir mapa: header original → nombre interno
+  const keyMap = {};
+  rawHeaders.forEach(h => {
+    const nk = normKey(h);
+    keyMap[h.trim()] = FIELD_MAP[nk] || h.trim();
+  });
+
   return lines.slice(1).map(line => {
     const vals = splitCSVLine(line);
-    const obj = {};
-    headers.forEach((h, i) => { obj[h.trim()] = (vals[i] || '').trim(); });
+    const obj  = {};
+    rawHeaders.forEach((h, i) => {
+      obj[keyMap[h.trim()]] = (vals[i] || '').trim();
+    });
     return obj;
-  }).filter(r => r['Nro']);
+  // Solo filas con número de expediente real (contiene guión: "101-D-2025")
+  }).filter(r => r['Nro'] && r['Nro'].includes('-'));
 }
 
 function splitCSVLine(line) {
@@ -388,25 +390,30 @@ function splitCSVLine(line) {
   return result;
 }
 
-// ── Inicialización ─────────────────────────────────────────────────────────
+// ── Inicialización ────────────────────────────────────────────────────────
 function inicializar() {
   poblarFiltros();
   aplicarFiltros();
-
-  // Timestamp
   const d = new Date();
   document.getElementById('ultima-actualizacion').textContent =
     `Actualizado: ${d.toLocaleDateString('es-AR')} ${d.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'})}`;
 }
 
 function poblarFiltros() {
-  const ubicaciones = [...new Set(allData.map(r => r['Ubicación']).filter(Boolean))].sort();
+  const ubicaciones = [...new Set(allData.map(r => r['Ubicacion']).filter(Boolean))].sort();
   const tipos       = [...new Set(allData.map(r => r['Tipo']).filter(Boolean))].sort();
-  const estados     = [...new Set(allData.map(r => r['Estado']).filter(Boolean))].sort();
+  const autores     = [...new Set(allData.map(r => r['Autor']).filter(Boolean))].sort();
 
   rellenarSelect('filtro-ubicacion', ubicaciones);
-  rellenarSelect('filtro-tipo', tipos);
-  rellenarSelect('filtro-estado', estados);
+  rellenarSelect('filtro-tipo',      tipos);
+
+  // Datalist para autocompletado de autores
+  const datalist = document.getElementById('lista-autores');
+  autores.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a;
+    datalist.appendChild(opt);
+  });
 }
 
 function rellenarSelect(id, items) {
@@ -419,23 +426,21 @@ function rellenarSelect(id, items) {
   sel.addEventListener('change', aplicarFiltros);
 }
 
-document.getElementById('filtro-texto').addEventListener('input', aplicarFiltros);
+document.getElementById('filtro-sumario').addEventListener('input', aplicarFiltros);
+document.getElementById('filtro-autor').addEventListener('input', aplicarFiltros);
 
 // ── Filtrado ──────────────────────────────────────────────────────────────
 function aplicarFiltros() {
   const ubicacion = document.getElementById('filtro-ubicacion').value;
   const tipo      = document.getElementById('filtro-tipo').value;
-  const estado    = document.getElementById('filtro-estado').value;
-  const texto     = document.getElementById('filtro-texto').value.toLowerCase();
+  const sumario   = document.getElementById('filtro-sumario').value.toLowerCase();
+  const autor     = document.getElementById('filtro-autor').value.toLowerCase();
 
   filteredData = allData.filter(r => {
-    if (ubicacion && r['Ubicación'] !== ubicacion) return false;
-    if (tipo      && r['Tipo']      !== tipo)      return false;
-    if (estado    && r['Estado']    !== estado)    return false;
-    if (texto) {
-      const haystack = `${r['Nro']} ${r['Sumario']} ${r['Autor']} ${r['CoAutor/es']}`.toLowerCase();
-      if (!haystack.includes(texto)) return false;
-    }
+    if (ubicacion && r['Ubicacion'] !== ubicacion)                          return false;
+    if (tipo      && r['Tipo']      !== tipo)                               return false;
+    if (sumario   && !(r['Sumario'] || '').toLowerCase().includes(sumario)) return false;
+    if (autor     && !(r['Autor']   || '').toLowerCase().includes(autor))   return false;
     return true;
   });
 
@@ -447,48 +452,67 @@ function aplicarFiltros() {
 
 function resetFiltros() {
   document.getElementById('filtro-ubicacion').value = '';
-  document.getElementById('filtro-tipo').value = '';
-  document.getElementById('filtro-estado').value = '';
-  document.getElementById('filtro-texto').value = '';
+  document.getElementById('filtro-tipo').value      = '';
+  document.getElementById('filtro-sumario').value   = '';
+  document.getElementById('filtro-autor').value     = '';
   aplicarFiltros();
+}
+
+// ── Fechas ────────────────────────────────────────────────────────────────
+function parseDate(s) {
+  if (!s) return null;
+  // DD/MM/YYYY (formato argentino)
+  const m1 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m1) return new Date(+m1[3], +m1[2] - 1, +m1[1]);
+  // YYYY-MM-DD
+  const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m2) return new Date(+m2[1], +m2[2] - 1, +m2[3]);
+  return null;
 }
 
 // ── Stats ─────────────────────────────────────────────────────────────────
 function actualizarStats() {
-  const total      = filteredData.length;
-  const comision   = filteredData.filter(r => r['Estado']?.toLowerCase().includes('comisión') || r['Estado']?.toLowerCase().includes('comision')).length;
-  const sancionados= filteredData.filter(r => r['Sancionado?']?.toLowerCase() === 'sí' || r['Sancionado?']?.toLowerCase() === 'si').length;
-  const comisiones = new Set(filteredData.map(r => r['Ubicación']).filter(Boolean)).size;
+  const total   = filteredData.length;
+
+  // Ingresados en los últimos 30 días
+  const hace30  = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const recientes = filteredData.filter(r => {
+    const d = parseDate(r['Inicio']);
+    return d && d >= hace30;
+  }).length;
+
+  // Comisiones únicas presentes
+  const comisionesArr = [...new Set(filteredData.map(r => r['Ubicacion']).filter(Boolean))].sort();
 
   document.getElementById('stat-total').textContent      = total.toLocaleString('es-AR');
-  document.getElementById('stat-comision').textContent   = comision.toLocaleString('es-AR');
-  document.getElementById('stat-sancionados').textContent= sancionados.toLocaleString('es-AR');
-  document.getElementById('stat-comisiones').textContent = comisiones.toLocaleString('es-AR');
+  document.getElementById('stat-recientes').textContent  = recientes.toLocaleString('es-AR');
+  document.getElementById('stat-comisiones').textContent = comisionesArr.length.toLocaleString('es-AR');
+  document.getElementById('stat-comisiones-nombres').textContent = comisionesArr.join(' · ');
 }
 
 // ── Gráficos ──────────────────────────────────────────────────────────────
 function contarPor(campo) {
   const map = {};
   filteredData.forEach(r => {
-    const v = r[campo] || '(sin dato)';
+    const v = (r[campo] || '').trim() || '(sin dato)';
     map[v] = (map[v] || 0) + 1;
   });
   return Object.entries(map).sort((a, b) => b[1] - a[1]);
 }
 
 const COLORES = [
-  '#245089','#2e86c1','#2874a6','#1a5276',
-  '#1f618d','#2e4057','#5d6d7e','#85929e',
-  '#aab7b8','#d5d8dc'
+  '#245089','#2e86c1','#2874a6','#1a5276','#1f618d',
+  '#2e4057','#5d6d7e','#85929e','#1abc9c','#27ae60',
+  '#f39c12','#e74c3c','#9b59b6','#aab7b8','#d5d8dc'
 ];
 
 function actualizarGraficos() {
-  renderGrafico('chart-comision', contarPor('Ubicación').slice(0, 15), 'Proyectos por Comisión');
-  renderGrafico('chart-tipo',     contarPor('Tipo'),                    'Proyectos por Tipo');
+  renderGrafico('chart-comision', contarPor('Ubicacion').slice(0, 15), 'Proyectos por Comisión');
+  renderGrafico('chart-tipo',     contarPor('Tipo'),                   'Proyectos por Tipo');
 }
 
 function renderGrafico(canvasId, datos, label) {
-  const ctx = document.getElementById(canvasId).getContext('2d');
+  const ctx    = document.getElementById(canvasId).getContext('2d');
   const labels = datos.map(d => d[0]);
   const values = datos.map(d => d[1]);
 
@@ -506,7 +530,7 @@ function renderGrafico(canvasId, datos, label) {
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.raw} proyectos` } }
+        tooltip: { callbacks: { label: c => ` ${c.raw} proyectos` } }
       },
       scales: {
         x: { grid: { color: '#eee' }, ticks: { font: { size: 11 } } },
@@ -518,58 +542,72 @@ function renderGrafico(canvasId, datos, label) {
 
 // ── Tabla ─────────────────────────────────────────────────────────────────
 function sortBy(col) {
-  if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-  else { sortCol = col; sortDir = 'asc'; }
-  // Update header classes
+  if (sortCol === col) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortCol = col;
+    sortDir = 'asc';
+  }
+  actualizarIndicadoresOrden();
+  renderTabla();
+}
+
+function actualizarIndicadoresOrden() {
   document.querySelectorAll('thead th').forEach(th => {
-    th.classList.remove('sorted-asc','sorted-desc');
-    if (th.textContent.replace(/[▲▼ ]/g,'').trim() === col.replace('Último Mov','Último Mov.').trim()) {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.col === sortCol) {
       th.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
     }
   });
-  renderTabla();
 }
 
 function renderTabla() {
   const sorted = [...filteredData].sort((a, b) => {
+    // Ordenamiento por fecha para columnas de fecha
+    if (sortCol === 'Inicio' || sortCol === 'UltimoMov') {
+      const da = parseDate(a[sortCol])?.getTime() || 0;
+      const db = parseDate(b[sortCol])?.getTime() || 0;
+      if (da !== db) return sortDir === 'asc' ? da - db : db - da;
+      return 0;
+    }
     const va = (a[sortCol] || '').toLowerCase();
     const vb = (b[sortCol] || '').toLowerCase();
     if (va < vb) return sortDir === 'asc' ? -1 : 1;
-    if (va > vb) return sortDir === 'asc' ? 1 : -1;
+    if (va > vb) return sortDir === 'asc' ?  1 : -1;
     return 0;
   });
 
-  const total  = sorted.length;
-  const pages  = Math.ceil(total / ROWS_PAGE) || 1;
-  currentPage  = Math.min(currentPage, pages);
-  const start  = (currentPage - 1) * ROWS_PAGE;
-  const page   = sorted.slice(start, start + ROWS_PAGE);
+  const total = sorted.length;
+  const pages = Math.ceil(total / ROWS_PAGE) || 1;
+  currentPage = Math.min(currentPage, pages);
+  const start = (currentPage - 1) * ROWS_PAGE;
+  const page  = sorted.slice(start, start + ROWS_PAGE);
 
-  document.getElementById('count-label').textContent =
-    `${total.toLocaleString('es-AR')} proyectos`;
-  document.getElementById('page-info').textContent =
-    `Página ${currentPage} de ${pages}`;
+  document.getElementById('count-label').textContent = `${total.toLocaleString('es-AR')} proyectos`;
+  document.getElementById('page-info').textContent   = `Página ${currentPage} de ${pages}`;
   document.getElementById('btn-prev').disabled = currentPage <= 1;
   document.getElementById('btn-next').disabled = currentPage >= pages;
 
   const tbody = document.getElementById('tabla-body');
   tbody.innerHTML = page.map(r => {
-    const tipoBadge  = badgeTipo(r['Tipo']);
-    const estadoBadge= badgeEstado(r['Estado']);
-    const docLink    = r['URL Documento']
-      ? `<a class="doc-link" href="${r['URL Documento']}" target="_blank" rel="noopener">Ver doc.</a>`
-      : '<span style="color:#ccc">—</span>';
+    // Nro: link al documento si existe URL, si no texto plano
+    const nroCell = r['UrlDoc']
+      ? `<td class="nro"><a class="nro-link" href="${esc(r['UrlDoc'])}" target="_blank" rel="noopener">${esc(r['Nro'])}</a></td>`
+      : `<td class="nro">${esc(r['Nro'])}</td>`;
+
     return `<tr>
-      <td class="nro">${esc(r['Nro'])}</td>
-      <td class="sumario" title="${esc(r['Sumario'])}">${esc(truncar(r['Sumario'], 80))}</td>
-      <td>${esc(r['Autor'])}</td>
-      <td>${tipoBadge}</td>
-      <td>${estadoBadge}</td>
-      <td style="white-space:nowrap;font-size:.8rem">${esc(r['Último Mov'] || '—')}</td>
-      <td style="font-size:.8rem">${esc(r['Ubicación'] || '—')}</td>
-      <td>${docLink}</td>
+      ${nroCell}
+      <td style="white-space:nowrap;font-size:.8rem">${esc(r['Inicio'] || '—')}</td>
+      <td style="font-size:.82rem">${esc(r['Autor'] || '—')}</td>
+      <td class="sumario" title="${esc(r['Sumario'])}">${esc(truncar(r['Sumario'], 110))}</td>
+      <td>${badgeTipo(r['Tipo'])}</td>
+      <td>${badgeEstado(r['Estado'])}</td>
+      <td style="white-space:nowrap;font-size:.8rem">${esc(r['UltimoMov'] || '—')}</td>
+      <td style="font-size:.8rem">${esc(r['Ubicacion'] || '—')}</td>
     </tr>`;
   }).join('');
+
+  actualizarIndicadoresOrden();
 }
 
 function cambiarPagina(dir) {
@@ -580,21 +618,23 @@ function cambiarPagina(dir) {
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function truncar(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : s; }
 
 function badgeTipo(tipo) {
   const t = (tipo || '').toUpperCase();
-  if (t.includes('LEY'))          return `<span class="badge badge-ley">LEY</span>`;
-  if (t.includes('RESOL'))        return `<span class="badge badge-resolucion">RESOLUCIÓN</span>`;
-  if (t.includes('DECL'))         return `<span class="badge badge-declaracion">DECLARACIÓN</span>`;
+  if (t.includes('LEY'))   return `<span class="badge badge-ley">LEY</span>`;
+  if (t.includes('RESOL')) return `<span class="badge badge-resolucion">RESOLUCIÓN</span>`;
+  if (t.includes('DECL'))  return `<span class="badge badge-declaracion">DECLARACIÓN</span>`;
   return `<span class="badge badge-otro">${esc(tipo || '—')}</span>`;
 }
 
 function badgeEstado(estado) {
   const e = (estado || '').toLowerCase();
-  if (e.includes('comis'))  return `<span class="badge badge-estado-comision">${esc(estado)}</span>`;
+  if (e.includes('comis'))   return `<span class="badge badge-estado-comision">${esc(estado)}</span>`;
   if (e.includes('sancion')) return `<span class="badge badge-estado-sancionado">${esc(estado)}</span>`;
   return `<span class="badge badge-estado-otro">${esc(estado || '—')}</span>`;
 }
