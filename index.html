@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitor Parlamentario – CABA</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --azul:      #1a3a5c;
+      --azul-med:  #245089;
+      --acento:    #e8c14e;
+      --bg:        #f4f6f9;
+      --card:      #ffffff;
+      --texto:     #1e2a38;
+      --gris:      #6b7a8d;
+      --borde:     #dde3ec;
+      --verde:     #2ecc71;
+      --naranja:   #e67e22;
+      --rojo:      #e74c3c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--texto); }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--azul) 0%, var(--azul-med) 100%);
+      color: #fff;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    }
+    header .brand { display: flex; align-items: center; gap: 14px; }
+    header .brand .escudo {
+      width: 48px; height: 48px;
+      background: var(--acento);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 900; color: var(--azul);
+    }
+    header h1 { font-size: 1.45rem; font-weight: 700; letter-spacing: .3px; }
+    header p  { font-size: .8rem; opacity: .75; margin-top: 2px; }
+    #ultima-actualizacion { font-size: .78rem; opacity: .7; text-align: right; }
+
+    /* ── Layout ── */
+    main { max-width: 1280px; margin: 0 auto; padding: 28px 24px 48px; }
+    section { margin-bottom: 32px; }
+    h2 { font-size: 1rem; font-weight: 600; color: var(--gris); text-transform: uppercase;
+         letter-spacing: .6px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    h2::before { content: ''; display: inline-block; width: 4px; height: 18px;
+                 background: var(--acento); border-radius: 2px; }
+
+    /* ── Scorecards ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+    .stat-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 22px 20px;
+      border-left: 5px solid var(--azul-med);
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+      transition: transform .15s;
+    }
+    .stat-card:hover { transform: translateY(-2px); }
+    .stat-card.verde  { border-color: var(--verde); }
+    .stat-card.naranja{ border-color: var(--naranja); }
+    .stat-card.rojo   { border-color: var(--rojo); }
+    .stat-label { font-size: .78rem; color: var(--gris); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+    .stat-value { font-size: 2.6rem; font-weight: 800; color: var(--azul); line-height: 1.1; margin: 6px 0 4px; }
+    .stat-card.verde  .stat-value { color: #1a9e52; }
+    .stat-card.naranja .stat-value { color: #b35c00; }
+    .stat-card.rojo   .stat-value { color: #c0392b; }
+    .stat-sub { font-size: .78rem; color: var(--gris); }
+
+    /* ── Filtros ── */
+    .filtros-bar {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .filtros-bar label { font-size: .8rem; font-weight: 600; color: var(--gris); }
+    .filtros-bar select, .filtros-bar input {
+      padding: 8px 12px;
+      border: 1.5px solid var(--borde);
+      border-radius: 8px;
+      font-size: .88rem;
+      color: var(--texto);
+      background: #fff;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .filtros-bar select:focus, .filtros-bar input:focus { border-color: var(--azul-med); }
+    .filtros-bar input { min-width: 220px; }
+    .filtros-bar .btn-reset {
+      margin-left: auto;
+      padding: 8px 16px;
+      background: var(--azul);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: .85rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .2s;
+    }
+    .filtros-bar .btn-reset:hover { background: var(--azul-med); }
+
+    /* ── Charts grid ── */
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
+    .chart-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    }
+    .chart-card h3 { font-size: .88rem; font-weight: 700; color: var(--azul); margin-bottom: 16px;
+                     display: flex; align-items: center; gap: 6px; }
+    .chart-wrap { position: relative; height: 280px; }
+
+    /* ── Tabla ── */
+    .tabla-wrap {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+      overflow: hidden;
+    }
+    .tabla-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--borde);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .tabla-header h3 { font-size: .88rem; font-weight: 700; color: var(--azul); }
+    #count-label { font-size: .82rem; color: var(--gris); }
+    .tabla-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    thead th {
+      background: var(--azul);
+      color: #fff;
+      padding: 11px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    thead th:hover { background: var(--azul-med); }
+    thead th.sorted-asc::after  { content: ' ▲'; font-size: .7rem; }
+    thead th.sorted-desc::after { content: ' ▼'; font-size: .7rem; }
+    tbody tr { border-bottom: 1px solid var(--borde); transition: background .1s; }
+    tbody tr:hover { background: #f0f4fa; }
+    tbody td { padding: 10px 14px; vertical-align: middle; }
+    tbody td.nro { font-weight: 700; color: var(--azul); white-space: nowrap; }
+    tbody td.sumario { max-width: 320px; }
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: .73rem;
+      font-weight: 700;
+      letter-spacing: .3px;
+      white-space: nowrap;
+    }
+    .badge-ley       { background: #d6eaf8; color: #1a5276; }
+    .badge-resolucion{ background: #d5f5e3; color: #1e8449; }
+    .badge-declaracion{ background: #fdebd0; color: #935116; }
+    .badge-otro      { background: #f0f0f0; color: #555; }
+    .badge-estado-comision { background: #eaf4fb; color: #1a6a9a; }
+    .badge-estado-sancionado { background: #eafaf1; color: #1e8449; }
+    .badge-estado-otro { background: #f9f9f9; color: #777; }
+    a.doc-link {
+      color: var(--azul-med);
+      font-weight: 600;
+      text-decoration: none;
+      font-size: .78rem;
+    }
+    a.doc-link:hover { text-decoration: underline; }
+    .paginacion {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      border-top: 1px solid var(--borde);
+      flex-wrap: wrap; gap: 8px;
+    }
+    .paginacion button {
+      padding: 6px 14px;
+      border: 1.5px solid var(--borde);
+      background: #fff;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--azul);
+      transition: all .15s;
+    }
+    .paginacion button:hover:not(:disabled) { background: var(--azul); color: #fff; border-color: var(--azul); }
+    .paginacion button:disabled { opacity: .35; cursor: not-allowed; }
+    #page-info { font-size: .82rem; color: var(--gris); }
+
+    /* ── Loading / Error ── */
+    .loader {
+      text-align: center; padding: 60px;
+      color: var(--gris); font-size: 1rem;
+    }
+    .loader::before { content: '⟳ '; animation: spin 1s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-msg { color: var(--rojo); background: #fdf0ee; border-radius: 8px; padding: 16px 20px; font-size: .9rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="escudo">L</div>
+    <div>
+      <h1>Monitor Parlamentario</h1>
+      <p>Legislatura de la Ciudad Autónoma de Buenos Aires</p>
+    </div>
+  </div>
+  <div id="ultima-actualizacion">Cargando datos…</div>
+</header>
+
+<main>
+
+  <!-- Cargando -->
+  <div id="loading" class="loader">Cargando datos desde la planilla…</div>
+  <div id="error-msg" class="error-msg" style="display:none"></div>
+
+  <div id="contenido" style="display:none">
+
+    <!-- Stats -->
+    <section>
+      <h2>Resumen General</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Proyectos</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-sub">en la base de datos</div>
+        </div>
+        <div class="stat-card naranja">
+          <div class="stat-label">En Comisión</div>
+          <div class="stat-value" id="stat-comision">—</div>
+          <div class="stat-sub">con trámite activo</div>
+        </div>
+        <div class="stat-card verde">
+          <div class="stat-label">Sancionados</div>
+          <div class="stat-value" id="stat-sancionados">—</div>
+          <div class="stat-sub">aprobados</div>
+        </div>
+        <div class="stat-card rojo">
+          <div class="stat-label">Comisiones</div>
+          <div class="stat-value" id="stat-comisiones">—</div>
+          <div class="stat-sub">con proyectos activos</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filtros -->
+    <section>
+      <h2>Filtros</h2>
+      <div class="filtros-bar">
+        <div>
+          <label>Comisión&nbsp;</label>
+          <select id="filtro-ubicacion"><option value="">Todas</option></select>
+        </div>
+        <div>
+          <label>Tipo&nbsp;</label>
+          <select id="filtro-tipo"><option value="">Todos</option></select>
+        </div>
+        <div>
+          <label>Estado&nbsp;</label>
+          <select id="filtro-estado"><option value="">Todos</option></select>
+        </div>
+        <div>
+          <input type="search" id="filtro-texto" placeholder="🔍  Buscar en sumario, autor, Nro…" />
+        </div>
+        <button class="btn-reset" onclick="resetFiltros()">Limpiar filtros</button>
+      </div>
+    </section>
+
+    <!-- Gráficos -->
+    <section>
+      <h2>Distribución</h2>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>📋 Por Comisión</h3>
+          <div class="chart-wrap"><canvas id="chart-comision"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>📄 Por Tipo de Proyecto</h3>
+          <div class="chart-wrap"><canvas id="chart-tipo"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabla -->
+    <section>
+      <div class="tabla-wrap">
+        <div class="tabla-header">
+          <h3>Proyectos Legislativos</h3>
+          <span id="count-label"></span>
+        </div>
+        <div class="tabla-scroll">
+          <table id="tabla">
+            <thead>
+              <tr>
+                <th onclick="sortBy('Nro')">Nro</th>
+                <th onclick="sortBy('Sumario')">Sumario</th>
+                <th onclick="sortBy('Autor')">Autor</th>
+                <th onclick="sortBy('Tipo')">Tipo</th>
+                <th onclick="sortBy('Estado')">Estado</th>
+                <th onclick="sortBy('Último Mov')">Último Mov.</th>
+                <th onclick="sortBy('Ubicación')">Comisión</th>
+                <th>Doc.</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-body"></tbody>
+          </table>
+        </div>
+        <div class="paginacion">
+          <button id="btn-prev" onclick="cambiarPagina(-1)">← Anterior</button>
+          <span id="page-info"></span>
+          <button id="btn-next" onclick="cambiarPagina(1)">Siguiente →</button>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /contenido -->
+</main>
+
+<script>
+// ── Configuración ──────────────────────────────────────────────────────────
+const CSV_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRev6wK6QFKLhZmqsxjyVnejhIxWHHE-KptyPBj0kZ0YY6lRaebjUNL-MjcOujCq_5YfqcJuSM2Tjvg/pub?gid=1935086705&single=true&output=csv';
+const ROWS_PAGE = 20;
+
+// ── Estado global ──────────────────────────────────────────────────────────
+let allData      = [];
+let filteredData = [];
+let currentPage  = 1;
+let sortCol      = 'Nro';
+let sortDir      = 'asc';
+let chartComision, chartTipo;
+
+// ── Carga de datos ─────────────────────────────────────────────────────────
+async function cargarDatos() {
+  try {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const csv = await res.text();
+    allData = parsearCSV(csv);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('contenido').style.display = 'block';
+    inicializar();
+  } catch (e) {
+    document.getElementById('loading').style.display = 'none';
+    const el = document.getElementById('error-msg');
+    el.style.display = 'block';
+    el.textContent = `⚠️  No se pudo cargar la planilla. Asegurate de que esté publicada en la web (Archivo → Publicar en la web → CSV). Detalle: ${e.message}`;
+  }
+}
+
+function parsearCSV(csv) {
+  const lines = csv.split('\n').filter(l => l.trim());
+  const headers = splitCSVLine(lines[0]);
+  return lines.slice(1).map(line => {
+    const vals = splitCSVLine(line);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h.trim()] = (vals[i] || '').trim(); });
+    return obj;
+  }).filter(r => r['Nro']);
+}
+
+function splitCSVLine(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
+    else { cur += c; }
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── Inicialización ─────────────────────────────────────────────────────────
+function inicializar() {
+  poblarFiltros();
+  aplicarFiltros();
+
+  // Timestamp
+  const d = new Date();
+  document.getElementById('ultima-actualizacion').textContent =
+    `Actualizado: ${d.toLocaleDateString('es-AR')} ${d.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'})}`;
+}
+
+function poblarFiltros() {
+  const ubicaciones = [...new Set(allData.map(r => r['Ubicación']).filter(Boolean))].sort();
+  const tipos       = [...new Set(allData.map(r => r['Tipo']).filter(Boolean))].sort();
+  const estados     = [...new Set(allData.map(r => r['Estado']).filter(Boolean))].sort();
+
+  rellenarSelect('filtro-ubicacion', ubicaciones);
+  rellenarSelect('filtro-tipo', tipos);
+  rellenarSelect('filtro-estado', estados);
+}
+
+function rellenarSelect(id, items) {
+  const sel = document.getElementById(id);
+  items.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = opt.textContent = v;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', aplicarFiltros);
+}
+
+document.getElementById('filtro-texto').addEventListener('input', aplicarFiltros);
+
+// ── Filtrado ──────────────────────────────────────────────────────────────
+function aplicarFiltros() {
+  const ubicacion = document.getElementById('filtro-ubicacion').value;
+  const tipo      = document.getElementById('filtro-tipo').value;
+  const estado    = document.getElementById('filtro-estado').value;
+  const texto     = document.getElementById('filtro-texto').value.toLowerCase();
+
+  filteredData = allData.filter(r => {
+    if (ubicacion && r['Ubicación'] !== ubicacion) return false;
+    if (tipo      && r['Tipo']      !== tipo)      return false;
+    if (estado    && r['Estado']    !== estado)    return false;
+    if (texto) {
+      const haystack = `${r['Nro']} ${r['Sumario']} ${r['Autor']} ${r['CoAutor/es']}`.toLowerCase();
+      if (!haystack.includes(texto)) return false;
+    }
+    return true;
+  });
+
+  currentPage = 1;
+  actualizarStats();
+  actualizarGraficos();
+  renderTabla();
+}
+
+function resetFiltros() {
+  document.getElementById('filtro-ubicacion').value = '';
+  document.getElementById('filtro-tipo').value = '';
+  document.getElementById('filtro-estado').value = '';
+  document.getElementById('filtro-texto').value = '';
+  aplicarFiltros();
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────
+function actualizarStats() {
+  const total      = filteredData.length;
+  const comision   = filteredData.filter(r => r['Estado']?.toLowerCase().includes('comisión') || r['Estado']?.toLowerCase().includes('comision')).length;
+  const sancionados= filteredData.filter(r => r['Sancionado?']?.toLowerCase() === 'sí' || r['Sancionado?']?.toLowerCase() === 'si').length;
+  const comisiones = new Set(filteredData.map(r => r['Ubicación']).filter(Boolean)).size;
+
+  document.getElementById('stat-total').textContent      = total.toLocaleString('es-AR');
+  document.getElementById('stat-comision').textContent   = comision.toLocaleString('es-AR');
+  document.getElementById('stat-sancionados').textContent= sancionados.toLocaleString('es-AR');
+  document.getElementById('stat-comisiones').textContent = comisiones.toLocaleString('es-AR');
+}
+
+// ── Gráficos ──────────────────────────────────────────────────────────────
+function contarPor(campo) {
+  const map = {};
+  filteredData.forEach(r => {
+    const v = r[campo] || '(sin dato)';
+    map[v] = (map[v] || 0) + 1;
+  });
+  return Object.entries(map).sort((a, b) => b[1] - a[1]);
+}
+
+const COLORES = [
+  '#245089','#2e86c1','#2874a6','#1a5276',
+  '#1f618d','#2e4057','#5d6d7e','#85929e',
+  '#aab7b8','#d5d8dc'
+];
+
+function actualizarGraficos() {
+  renderGrafico('chart-comision', contarPor('Ubicación').slice(0, 15), 'Proyectos por Comisión');
+  renderGrafico('chart-tipo',     contarPor('Tipo'),                    'Proyectos por Tipo');
+}
+
+function renderGrafico(canvasId, datos, label) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const labels = datos.map(d => d[0]);
+  const values = datos.map(d => d[1]);
+
+  if (window[canvasId + '_chart']) window[canvasId + '_chart'].destroy();
+
+  window[canvasId + '_chart'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label, data: values, backgroundColor: COLORES, borderRadius: 5, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.raw} proyectos` } }
+      },
+      scales: {
+        x: { grid: { color: '#eee' }, ticks: { font: { size: 11 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#444' } }
+      }
+    }
+  });
+}
+
+// ── Tabla ─────────────────────────────────────────────────────────────────
+function sortBy(col) {
+  if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  else { sortCol = col; sortDir = 'asc'; }
+  // Update header classes
+  document.querySelectorAll('thead th').forEach(th => {
+    th.classList.remove('sorted-asc','sorted-desc');
+    if (th.textContent.replace(/[▲▼ ]/g,'').trim() === col.replace('Último Mov','Último Mov.').trim()) {
+      th.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+    }
+  });
+  renderTabla();
+}
+
+function renderTabla() {
+  const sorted = [...filteredData].sort((a, b) => {
+    const va = (a[sortCol] || '').toLowerCase();
+    const vb = (b[sortCol] || '').toLowerCase();
+    if (va < vb) return sortDir === 'asc' ? -1 : 1;
+    if (va > vb) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const total  = sorted.length;
+  const pages  = Math.ceil(total / ROWS_PAGE) || 1;
+  currentPage  = Math.min(currentPage, pages);
+  const start  = (currentPage - 1) * ROWS_PAGE;
+  const page   = sorted.slice(start, start + ROWS_PAGE);
+
+  document.getElementById('count-label').textContent =
+    `${total.toLocaleString('es-AR')} proyectos`;
+  document.getElementById('page-info').textContent =
+    `Página ${currentPage} de ${pages}`;
+  document.getElementById('btn-prev').disabled = currentPage <= 1;
+  document.getElementById('btn-next').disabled = currentPage >= pages;
+
+  const tbody = document.getElementById('tabla-body');
+  tbody.innerHTML = page.map(r => {
+    const tipoBadge  = badgeTipo(r['Tipo']);
+    const estadoBadge= badgeEstado(r['Estado']);
+    const docLink    = r['URL Documento']
+      ? `<a class="doc-link" href="${r['URL Documento']}" target="_blank" rel="noopener">Ver doc.</a>`
+      : '<span style="color:#ccc">—</span>';
+    return `<tr>
+      <td class="nro">${esc(r['Nro'])}</td>
+      <td class="sumario" title="${esc(r['Sumario'])}">${esc(truncar(r['Sumario'], 80))}</td>
+      <td>${esc(r['Autor'])}</td>
+      <td>${tipoBadge}</td>
+      <td>${estadoBadge}</td>
+      <td style="white-space:nowrap;font-size:.8rem">${esc(r['Último Mov'] || '—')}</td>
+      <td style="font-size:.8rem">${esc(r['Ubicación'] || '—')}</td>
+      <td>${docLink}</td>
+    </tr>`;
+  }).join('');
+}
+
+function cambiarPagina(dir) {
+  currentPage += dir;
+  renderTabla();
+  document.querySelector('.tabla-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function truncar(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : s; }
+
+function badgeTipo(tipo) {
+  const t = (tipo || '').toUpperCase();
+  if (t.includes('LEY'))          return `<span class="badge badge-ley">LEY</span>`;
+  if (t.includes('RESOL'))        return `<span class="badge badge-resolucion">RESOLUCIÓN</span>`;
+  if (t.includes('DECL'))         return `<span class="badge badge-declaracion">DECLARACIÓN</span>`;
+  return `<span class="badge badge-otro">${esc(tipo || '—')}</span>`;
+}
+
+function badgeEstado(estado) {
+  const e = (estado || '').toLowerCase();
+  if (e.includes('comis'))  return `<span class="badge badge-estado-comision">${esc(estado)}</span>`;
+  if (e.includes('sancion')) return `<span class="badge badge-estado-sancionado">${esc(estado)}</span>`;
+  return `<span class="badge badge-estado-otro">${esc(estado || '—')}</span>`;
+}
+
+// ── Inicio ────────────────────────────────────────────────────────────────
+cargarDatos();
+</script>
+</body>
+</html>
