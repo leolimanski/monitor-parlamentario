@@ -129,11 +129,8 @@
       background: var(--azul); color: #fff; padding: 11px 14px;
       text-align: left; font-weight: 600; font-size: .78rem;
       text-transform: uppercase; letter-spacing: .4px;
-      white-space: nowrap; cursor: pointer; user-select: none;
+      white-space: nowrap;
     }
-    thead th:hover { background: var(--azul-med); }
-    thead th.sorted-asc::after  { content: ' ▲'; font-size: .7rem; }
-    thead th.sorted-desc::after { content: ' ▼'; font-size: .7rem; }
     tbody tr { border-bottom: 1px solid var(--borde); transition: background .1s; }
     tbody tr:hover { background: #f0f4fa; }
     tbody td { padding: 10px 14px; vertical-align: middle; }
@@ -242,6 +239,13 @@
           <input type="search" id="filtro-autor" placeholder="🔍 Buscar autor…" list="lista-autores" autocomplete="off" />
           <datalist id="lista-autores"></datalist>
         </div>
+        <div class="filtro-grupo">
+          <label for="filtro-orden">Ordenar por fecha</label>
+          <select id="filtro-orden">
+            <option value="desc">Más nuevo primero</option>
+            <option value="asc">Más antiguo primero</option>
+          </select>
+        </div>
         <button class="btn-reset" onclick="resetFiltros()">Limpiar filtros</button>
       </div>
     </section>
@@ -272,14 +276,14 @@
           <table id="tabla">
             <thead>
               <tr>
-                <th data-col="Nro"       onclick="sortBy('Nro')">Nro</th>
-                <th data-col="Inicio"    onclick="sortBy('Inicio')">Inicio</th>
-                <th data-col="Autor"     onclick="sortBy('Autor')">Autor</th>
-                <th data-col="Sumario"   onclick="sortBy('Sumario')">Sumario</th>
-                <th data-col="Tipo"      onclick="sortBy('Tipo')">Tipo</th>
-                <th data-col="Estado"    onclick="sortBy('Estado')">Estado</th>
-                <th data-col="UltimoMov" onclick="sortBy('UltimoMov')">Último Mov.</th>
-                <th data-col="Ubicacion" onclick="sortBy('Ubicacion')">Comisión</th>
+                <th>Nro</th>
+                <th>Inicio</th>
+                <th>Autor</th>
+                <th>Sumario</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Último Mov.</th>
+                <th>Comisión</th>
               </tr>
             </thead>
             <tbody id="tabla-body"></tbody>
@@ -305,8 +309,6 @@ const ROWS_PAGE = 20;
 let allData      = [];
 let filteredData = [];
 let currentPage  = 1;
-let sortCol      = 'Inicio';   // default: más nuevos primero
-let sortDir      = 'desc';
 
 // ── Normalización de headers ──────────────────────────────────────────────
 // Convierte cualquier nombre de columna a una clave normalizada (sin tildes,
@@ -355,10 +357,13 @@ async function cargarDatos() {
 }
 
 function parsearCSV(csv) {
-  const lines = csv.split('\n').filter(l => l.trim());
-  if (lines.length < 2) return [];
+  // Strip BOM si está presente
+  if (csv.charCodeAt(0) === 0xFEFF) csv = csv.slice(1);
 
-  const rawHeaders = splitCSVLine(lines[0]);
+  const rows = parseCSVFull(csv);
+  if (rows.length < 2) return [];
+
+  const rawHeaders = rows[0];
 
   // Construir mapa: header original → nombre interno
   const keyMap = {};
@@ -367,9 +372,8 @@ function parsearCSV(csv) {
     keyMap[h.trim()] = FIELD_MAP[nk] || h.trim();
   });
 
-  return lines.slice(1).map(line => {
-    const vals = splitCSVLine(line);
-    const obj  = {};
+  return rows.slice(1).map(vals => {
+    const obj = {};
     rawHeaders.forEach((h, i) => {
       obj[keyMap[h.trim()]] = (vals[i] || '').trim();
     });
@@ -378,16 +382,58 @@ function parsearCSV(csv) {
   }).filter(r => r['Nro'] && r['Nro'].includes('-'));
 }
 
-function splitCSVLine(line) {
-  const result = []; let cur = ''; let inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"') { inQ = !inQ; }
-    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
-    else { cur += c; }
+// Parser CSV completo que maneja correctamente campos multilínea entre comillas.
+// El bug original usaba csv.split('\n') antes de parsear, lo que partía los
+// campos entrecomillados que contienen saltos de línea (sumarios con \n),
+// generando filas fantasma que inflaban el total y perdían la comisión.
+function parseCSVFull(csv) {
+  const rows = [];
+  let row = [];
+  let cur = '';
+  let inQ = false;
+
+  for (let i = 0; i < csv.length; i++) {
+    const c = csv[i];
+
+    if (inQ) {
+      if (c === '"') {
+        // Comilla escapada ("") → produce una comilla literal
+        if (i + 1 < csv.length && csv[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQ = false; // fin del campo entrecomillado
+        }
+      } else {
+        cur += c; // \n dentro de comillas: parte del valor, no separador de fila
+      }
+    } else {
+      if (c === '"') {
+        inQ = true;
+      } else if (c === ',') {
+        row.push(cur);
+        cur = '';
+      } else if (c === '\r') {
+        // ignorar \r (compatibilidad con terminaciones CRLF)
+      } else if (c === '\n') {
+        row.push(cur);
+        cur = '';
+        rows.push(row);
+        row = [];
+      } else {
+        cur += c;
+      }
+    }
   }
-  result.push(cur);
-  return result;
+
+  // Última fila si el CSV no termina en \n
+  if (cur !== '' || row.length > 0) {
+    row.push(cur);
+    rows.push(row);
+  }
+
+  // Filtrar filas completamente vacías
+  return rows.filter(r => r.some(f => f.trim() !== ''));
 }
 
 // ── Inicialización ────────────────────────────────────────────────────────
@@ -428,6 +474,7 @@ function rellenarSelect(id, items) {
 
 document.getElementById('filtro-sumario').addEventListener('input', aplicarFiltros);
 document.getElementById('filtro-autor').addEventListener('input', aplicarFiltros);
+document.getElementById('filtro-orden').addEventListener('change', () => { currentPage = 1; renderTabla(); });
 
 // ── Filtrado ──────────────────────────────────────────────────────────────
 function aplicarFiltros() {
@@ -455,17 +502,20 @@ function resetFiltros() {
   document.getElementById('filtro-tipo').value      = '';
   document.getElementById('filtro-sumario').value   = '';
   document.getElementById('filtro-autor').value     = '';
+  document.getElementById('filtro-orden').value     = 'desc';
   aplicarFiltros();
 }
 
 // ── Fechas ────────────────────────────────────────────────────────────────
 function parseDate(s) {
   if (!s) return null;
-  // DD/MM/YYYY (formato argentino)
-  const m1 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  // Google Sheets exporta fechas con hora: "2/3/2026 0:00:00" → tomar solo la parte de fecha
+  const limpio = s.trim().split(' ')[0];
+  // D/M/YYYY o DD/MM/YYYY (formato argentino)
+  const m1 = limpio.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (m1) return new Date(+m1[3], +m1[2] - 1, +m1[1]);
   // YYYY-MM-DD
-  const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const m2 = limpio.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m2) return new Date(+m2[1], +m2[2] - 1, +m2[3]);
   return null;
 }
@@ -541,40 +591,12 @@ function renderGrafico(canvasId, datos, label) {
 }
 
 // ── Tabla ─────────────────────────────────────────────────────────────────
-function sortBy(col) {
-  if (sortCol === col) {
-    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortCol = col;
-    sortDir = 'asc';
-  }
-  actualizarIndicadoresOrden();
-  renderTabla();
-}
-
-function actualizarIndicadoresOrden() {
-  document.querySelectorAll('thead th').forEach(th => {
-    th.classList.remove('sorted-asc', 'sorted-desc');
-    if (th.dataset.col === sortCol) {
-      th.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
-    }
-  });
-}
-
 function renderTabla() {
+  const orden  = document.getElementById('filtro-orden').value;
   const sorted = [...filteredData].sort((a, b) => {
-    // Ordenamiento por fecha para columnas de fecha
-    if (sortCol === 'Inicio' || sortCol === 'UltimoMov') {
-      const da = parseDate(a[sortCol])?.getTime() || 0;
-      const db = parseDate(b[sortCol])?.getTime() || 0;
-      if (da !== db) return sortDir === 'asc' ? da - db : db - da;
-      return 0;
-    }
-    const va = (a[sortCol] || '').toLowerCase();
-    const vb = (b[sortCol] || '').toLowerCase();
-    if (va < vb) return sortDir === 'asc' ? -1 : 1;
-    if (va > vb) return sortDir === 'asc' ?  1 : -1;
-    return 0;
+    const da = parseDate(a['Inicio'])?.getTime() || 0;
+    const db = parseDate(b['Inicio'])?.getTime() || 0;
+    return orden === 'asc' ? da - db : db - da;
   });
 
   const total = sorted.length;
@@ -607,7 +629,6 @@ function renderTabla() {
     </tr>`;
   }).join('');
 
-  actualizarIndicadoresOrden();
 }
 
 function cambiarPagina(dir) {
