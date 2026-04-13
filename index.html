@@ -281,8 +281,6 @@
                 <th>Autor</th>
                 <th>Sumario</th>
                 <th>Tipo</th>
-                <th>Estado</th>
-                <th>Último Mov.</th>
                 <th>Comisión</th>
               </tr>
             </thead>
@@ -617,14 +615,13 @@ function renderTabla() {
       ? `<td class="nro"><a class="nro-link" href="${esc(r['UrlDoc'])}" target="_blank" rel="noopener">${esc(r['Nro'])}</a></td>`
       : `<td class="nro">${esc(r['Nro'])}</td>`;
 
+    const fechaDisplay = (r['Inicio'] || '').split(' ')[0] || '—';
     return `<tr>
       ${nroCell}
-      <td style="white-space:nowrap;font-size:.8rem">${esc(r['Inicio'] || '—')}</td>
+      <td style="white-space:nowrap;font-size:.8rem">${esc(fechaDisplay)}</td>
       <td style="font-size:.82rem">${esc(r['Autor'] || '—')}</td>
       <td class="sumario" title="${esc(r['Sumario'])}">${esc(truncar(r['Sumario'], 110))}</td>
       <td>${badgeTipo(r['Tipo'])}</td>
-      <td>${badgeEstado(r['Estado'])}</td>
-      <td style="white-space:nowrap;font-size:.8rem">${esc(r['UltimoMov'] || '—')}</td>
       <td style="font-size:.8rem">${esc(r['Ubicacion'] || '—')}</td>
     </tr>`;
   }).join('');
